@@ -1,39 +1,42 @@
 import express from 'express'
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
+import createHttpError from 'http-errors'
 
 const prisma = new PrismaClient()
 export const showsRouter = express.Router()
 
 showsRouter.get('/', async function(req, res, next) {
-	const articles = await prisma.serie.findMany()
+	const shows = await prisma.serie.findMany()
 
-	res.send({articles})
+	res.send({shows})
 })
 
-showsRouter.get('/:id', async function(req, res, next) {
-	const articles = await prisma.serie.findMany({
+showsRouter.get('/:id', function(req, res, next) {
+	prisma.serie.findUniqueOrThrow({
 		where: {
 			title: {
 				equals: req.params.id
 			}
+		}})
+	.then(show => res.send(show))
+	.catch(error => {
+		if (error instanceof Prisma.NotFoundError) {
+			next(createHttpError(404, 'Show unknown.'))
 		}
 	})
-
-	res.send({articles})
 })
 
 showsRouter.post('/', async function (req, res, next) {
-	try {
-		res.send(await prisma.serie.create({
-			data: {
-				title: req.body.title,
-				date: req.body.date,
-				description: req.body.description,
-				thumbmailURL: req.body.thumbmailURL
-			}
-		}))
-	} catch (error) {
-		res.send({error, message: "You might want to check your Show data format / content."})
-	}
+	prisma.serie.create({
+		data: {
+			title: req.body.title,
+			date: req.body.date,
+			description: req.body.description,
+			thumbmailURL: req.body.thumbmailURL
+		}})
+	.then(() => res.send({message: 'Show posted!'}))
+	.catch(() => {
+		next(createHttpError(400, 'Check your show model/content.'))
+	})
 })
 
