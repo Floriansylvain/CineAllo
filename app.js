@@ -5,7 +5,7 @@ import { showsRouter } from './routes/shows.js'
 
 dotenv.config()
 const app = express()
-const port = process.env.CINEALLO_PORT
+const port = 3000
 
 app.use(logger('dev'))
 app.use(express.json())
