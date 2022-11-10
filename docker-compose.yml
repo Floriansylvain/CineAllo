@@ -12,9 +12,9 @@ services:
       - ./mysql-data:/var/lib/mysql
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3306" ]
-      interval: 5s
-      timeout: 15s
-      retries: 5
+      interval: 3s
+      timeout: 30s
+      retries: 10
   backend:
     build: .
     image: cineallo-backend
