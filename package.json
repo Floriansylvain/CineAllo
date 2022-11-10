@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "prisma migrate deploy && node app.js"
+    "start": "npx prisma migrate deploy && node app.js"
   },
   "dependencies": {
     "@prisma/client": "^4.6.0",
