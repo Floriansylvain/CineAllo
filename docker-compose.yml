@@ -16,7 +16,7 @@ services:
       - back-net
     environment:
       - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
-      - "MYSQL_DATABASE=cineallo"
+      - "MYSQL_DATABASE=${MYSQL_DATABASE}"
     volumes:
       - ./mysql-data:/var/lib/mysql
     # ports:
