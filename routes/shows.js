@@ -14,7 +14,7 @@ showsRouter.get('/:id', async function(req, res, next) {
 	const articles = await prisma.serie.findMany({
 		where: {
 			title: {
-				contains: req.params.id
+				equals: req.params.id
 			}
 		}
 	})
