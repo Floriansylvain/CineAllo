@@ -1,0 +1,24 @@
+services:
+  backend:
+    build: .
+    image: cineallo-backend
+    env_file:
+      - .env
+    networks:
+      - back-net
+    ports:
+      - 3000:3000
+  db:
+    image: mysql:8.0.31
+    env_file:
+      - .env
+    networks:
+      - back-net
+    environment:
+      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+      - "MYSQL_DATABASE=cineallo"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+
+networks:
+  back-net:
