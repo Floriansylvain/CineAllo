@@ -21,3 +21,19 @@ showsRouter.get('/:id', async function(req, res, next) {
 
 	res.send({articles})
 })
+
+showsRouter.post('/', async function (req, res, next) {
+	try {
+		res.send(await prisma.serie.create({
+			data: {
+				title: req.body.title,
+				date: req.body.date,
+				description: req.body.description,
+				thumbmailURL: req.body.thumbmailURL
+			}
+		}))
+	} catch (error) {
+		res.send({error, message: "You might want to check your Show data format / content."})
+	}
+})
+
