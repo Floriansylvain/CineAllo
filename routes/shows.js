@@ -5,10 +5,13 @@ import createHttpError from 'http-errors'
 const prisma = new PrismaClient()
 export const showsRouter = express.Router()
 
-showsRouter.get('/', async function (req, res, next) {
-	const shows = await prisma.serie.findMany()
-
-	res.send({ shows })
+showsRouter.get('/', function (req, res, next) {
+	prisma.serie.findMany({
+		orderBy: {
+			likes: 'desc'
+		}
+	})
+		.then(shows => res.send({ shows }))
 })
 
 showsRouter.get('/:id', function (req, res, next) {
@@ -40,3 +43,19 @@ showsRouter.post('/', function (req, res, next) {
 		})
 })
 
+showsRouter.patch('/like/:id', function (req, res, next) {
+	prisma.serie.update({
+		where: {
+			title: req.params.id
+		},
+		data: {
+			likes: {
+				increment: 1
+			}
+		}
+	})
+		.then(() => res.send({ message: 'Show liked!' }))
+		.catch(() => {
+			next(createHttpError(400, 'Show not found.'))
+		})
+})
