@@ -1,13 +1,4 @@
 services:
-  backend:
-    build: .
-    image: cineallo-backend
-    env_file:
-      - .env
-    networks:
-      - back-net
-    ports:
-      - 3000:3000
   db:
     image: mysql:8.0.31
     env_file:
@@ -16,9 +7,26 @@ services:
       - back-net
     environment:
       - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
-      - "MYSQL_DATABASE=cineallo"
+      - "MYSQL_DATABASE=${MYSQL_DATABASE}"
     volumes:
       - ./mysql-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3306" ]
+      interval: 3s
+      timeout: 30s
+      retries: 10
+  backend:
+    build: .
+    image: cineallo-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    networks:
+      - back-net
+    ports:
+      - "${CINEALLO_PORT}:3000"
 
 networks:
   back-net:
