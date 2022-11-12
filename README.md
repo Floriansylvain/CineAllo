@@ -6,10 +6,7 @@
 - MYSQL_ROOT_PASSWORD
 - CINEALLO_PORT
 
-``DATABASE_URL`` shoud look like this:
-```html
-mysql://root:<MYSQL_ROOT_PASSWORD>@db:3306/<MYSQL_DATABASE>
-```
+``DATABASE_URL`` shoud look like this: ``mysql://root:<MYSQL_ROOT_PASSWORD>@db:3306/<MYSQL_DATABASE>``
 ## Usage
 ### Docker
 ```bash
