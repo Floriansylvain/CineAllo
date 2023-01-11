@@ -25,9 +25,18 @@ function pushOrderByToFilter(filter, valueOrderPair) {
 	filter.orderBy[valueOrderPair.value] = valueOrderPair.order
 }
 
+function parseNumberFromQuery(query) {
+	const parsedQuery = parseInt(query)
+	if (isNaN(parsedQuery)) return undefined;
+	return parsedQuery
+}
+
 showsRouter.get('/', function (req, res, next) {
 	const queries = req.query
-	const filter = {}
+	const filter = {
+		skip: parseNumberFromQuery(queries['start']) ?? 0,
+		take: parseNumberFromQuery(queries['per_page']) ?? 10
+	}
 
 	pushOrderByToFilter(filter, { value: queries?.sort_asc, order: 'asc' })
 	pushOrderByToFilter(filter, { value: queries?.sort_desc, order: 'desc' })
@@ -39,10 +48,21 @@ showsRouter.get('/', function (req, res, next) {
 	pushQueryToFilter(filter, { key: 'likes', value: queries?.likes, query: 'equals' })
 
 	prisma.serie.findMany(filter)
-		.then(shows => res.send({ shows }))
+		.then(shows => res.send({
+			shows,
+			pagination: {
+				start: filter.skip,
+				per_page: filter.take
+			},
+			links: {
+				next: `/v1/shows?start=${filter.skip + filter.take}&per_page=${filter.take}`,
+				prev: `/v1/shows?start=${Math.max(0, filter.skip - filter.take)}&per_page=${filter.take}`
+			},
+			total: shows.length
+		}))
 		.catch(error => {
 			if (error instanceof Prisma.PrismaClientValidationError) {
-				next(createHttpError(400, 'Incorrect field in sort query.'))
+				next(createHttpError(400, 'Incorrect field in sort query: ' + error))
 			}
 		})
 })
