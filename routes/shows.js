@@ -5,12 +5,33 @@ import createHttpError from 'http-errors'
 const prisma = new PrismaClient()
 export const showsRouter = express.Router()
 
+function pushQueryToFilter(filter, keyValueQuery) {
+	if (keyValueQuery.value === undefined) return;
+	if (filter.where == undefined) {
+		filter.where = {}
+	}
+
+	filter.where[keyValueQuery.key] = {
+		[keyValueQuery.query]: keyValueQuery.query === 'contains' ?
+			keyValueQuery.value.toString() : parseInt(keyValueQuery.value)
+	}
+}
+
 showsRouter.get('/', function (req, res, next) {
-	prisma.serie.findMany({
+	const filter = {
 		orderBy: {
 			likes: 'desc'
 		}
-	})
+	}
+
+	const queries = req.query
+	pushQueryToFilter(filter, { key: 'title', value: queries?.title, query: 'contains' })
+	pushQueryToFilter(filter, { key: 'description', value: queries?.description, query: 'contains' })
+	pushQueryToFilter(filter, { key: 'thumbmailURL', value: queries?.thumbmailURL, query: 'contains' })
+	pushQueryToFilter(filter, { key: 'date', value: queries?.date, query: 'equals' })
+	pushQueryToFilter(filter, { key: 'likes', value: queries?.likes, query: 'equals' })
+
+	prisma.serie.findMany(filter)
 		.then(shows => res.send({ shows }))
 })
 
@@ -43,7 +64,7 @@ showsRouter.post('/', function (req, res, next) {
 		})
 })
 
-showsRouter.patch('/like/:id', function (req, res, next) {
+showsRouter.patch('/:id/like/', function (req, res, next) {
 	prisma.serie.update({
 		where: {
 			title: req.params.id
