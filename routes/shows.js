@@ -33,7 +33,7 @@ function parseNumberFromQuery(query) {
 
 function pushQueriesToFilter(filter, queries) {
 	queries.forEach(query => {
-		pushOrderByToFilter(query, filter)
+		pushQueryToFilter(query, filter)
 	})
 }
 
