@@ -17,14 +17,21 @@ function pushQueryToFilter(filter, keyValueQuery) {
 	}
 }
 
-showsRouter.get('/', function (req, res, next) {
-	const filter = {
-		orderBy: {
-			likes: 'desc'
-		}
+function pushOrderByToFilter(filter, valueOrderPair) {
+	if (valueOrderPair.value === undefined) return;
+	if (filter.orderBy == undefined) {
+		filter.orderBy = {}
 	}
+	filter.orderBy[valueOrderPair.value] = valueOrderPair.order
+}
 
+showsRouter.get('/', function (req, res, next) {
 	const queries = req.query
+	const filter = {}
+
+	pushOrderByToFilter(filter, { value: queries?.sort_asc, order: 'asc' })
+	pushOrderByToFilter(filter, { value: queries?.sort_desc, order: 'desc' })
+
 	pushQueryToFilter(filter, { key: 'title', value: queries?.title, query: 'contains' })
 	pushQueryToFilter(filter, { key: 'description', value: queries?.description, query: 'contains' })
 	pushQueryToFilter(filter, { key: 'thumbmailURL', value: queries?.thumbmailURL, query: 'contains' })
