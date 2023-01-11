@@ -40,6 +40,11 @@ showsRouter.get('/', function (req, res, next) {
 
 	prisma.serie.findMany(filter)
 		.then(shows => res.send({ shows }))
+		.catch(error => {
+			if (error instanceof Prisma.PrismaClientValidationError) {
+				next(createHttpError(400, 'Incorrect field in sort query.'))
+			}
+		})
 })
 
 showsRouter.get('/:id', function (req, res, next) {
