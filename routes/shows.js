@@ -31,6 +31,12 @@ function parseNumberFromQuery(query) {
 	return parsedQuery
 }
 
+function pushQueriesToFilter(filter, queries) {
+	queries.forEach(query => {
+		pushOrderByToFilter(query, filter)
+	})
+}
+
 showsRouter.get('/', function (req, res, next) {
 	const queries = req.query
 	const filter = {
@@ -41,11 +47,13 @@ showsRouter.get('/', function (req, res, next) {
 	pushOrderByToFilter(filter, { value: queries?.sort_asc, order: 'asc' })
 	pushOrderByToFilter(filter, { value: queries?.sort_desc, order: 'desc' })
 
-	pushQueryToFilter(filter, { key: 'title', value: queries?.title, query: 'contains' })
-	pushQueryToFilter(filter, { key: 'description', value: queries?.description, query: 'contains' })
-	pushQueryToFilter(filter, { key: 'thumbmailURL', value: queries?.thumbmailURL, query: 'contains' })
-	pushQueryToFilter(filter, { key: 'date', value: queries?.date, query: 'equals' })
-	pushQueryToFilter(filter, { key: 'likes', value: queries?.likes, query: 'equals' })
+	pushQueriesToFilter(filter, [
+		{ key: 'title', value: queries?.title, query: 'contains' },
+		{ key: 'description', value: queries?.description, query: 'contains' },
+		{ key: 'thumbmailURL', value: queries?.thumbmailURL, query: 'contains' },
+		{ key: 'date', value: queries?.date, query: 'equals' },
+		{ key: 'likes', value: queries?.likes, query: 'equals' }
+	])
 
 	prisma.serie.findMany(filter)
 		.then(shows => res.send({
